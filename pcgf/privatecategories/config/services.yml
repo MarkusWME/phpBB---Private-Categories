@@ -1,0 +1,9 @@
+services:
+    pcgf.privatecategories.listener:
+        class: pcgf\privatecategories\event\listener
+        arguments:
+            - @dbal.conn
+            - @config
+            - @template
+        tags:
+            - { name: event.listener }

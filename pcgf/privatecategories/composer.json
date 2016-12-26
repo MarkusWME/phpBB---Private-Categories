@@ -1,0 +1,32 @@
+{
+    "name": "pcgf/privatecategories",
+    "type": "phpbb-extension",
+    "description": "An extension that allows to create private categories where only selected users can read topics",
+    "homepage": "https://github.com/MarkusWME/phpBB---Private-Categories",
+    "version": "1.0.0",
+    "time": "2016-12-26",
+    "keywords": ["private", "private categories", "category", "private topics", "hidden", "hidden topics"],
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "MarkusWME",
+            "homepage": "https://github.com/MarkusWME",
+            "email": "markuswme@pcgamingfreaks.at",
+            "role": "Lead Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "extra": {
+        "display-name": "Private Categories",
+        "soft-require": {
+            "phpbb/phpbb": ">=3.1"
+        },
+        "version-check": {
+            "host": "api.pcgf.at",
+            "directory": "/phpbb",
+            "filename": "privatecategories.json"
+        }
+    }
+}

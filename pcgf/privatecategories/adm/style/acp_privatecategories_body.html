@@ -1,0 +1,102 @@
+<!-- INCLUDE overall_header.html -->
+<h1>{L_ACP_PCGF_PRIVATECATEGORIES}</h1>
+<p>{L_ACP_PCGF_PRIVATECATEGORIES_EXPLAIN}</p>
+<form id="acp_pcgf_privatecategories_configuration" method="post" action="{U_ACTION}">
+    <fieldset>
+        <legend>{L_ACP_PCGF_PRIVATECATEGORIES_SETTINGS}</legend>
+        <input type="hidden" name="action" value="save"/>
+        <dl>
+            <dt>
+                <label>{L_ACP_PCGF_PRIVATECATEGORIES_AUTO_INHERITANCE}</label>
+                <br/>
+                <span>{L_ACP_PCGF_PRIVATECATEGORIES_AUTO_INHERITANCE_EXPLAIN}</span>
+            </dt>
+            <dd>
+                <input id ="privatecategories-auto-inheritance-yes" name="privatecategories_auto_inheritance" class="radio" type="radio"<!-- IF AUTO_INHERITANCE_ACTIVATED --> checked<!-- ENDIF --> value="1"/>
+                <label for="privatecategories-auto-inheritance-yes">{L_YES}</label>&nbsp;
+                <input id ="privatecategories-auto-inheritance-no" name="privatecategories_auto_inheritance" class="radio" type="radio"<!-- IF not AUTO_INHERITANCE_ACTIVATED --> checked<!-- ENDIF --> value="0"/>
+                <label for="privatecategories-auto-inheritance-no">{L_NO}</label>
+            </dd>
+        </dl>
+        <p class="submit-buttons">
+            <input class="button1" type="submit" id="submit" name="submit" value="{L_SUBMIT}"/>&nbsp;
+            <input class="button2" type="reset" id="reset" name="reset" value="{L_RESET}"/>
+            {S_FORM_TOKEN}
+        </p>
+    </fieldset>
+</form>
+<fieldset>
+    <legend>{L_ACP_PCGF_PRIVATECATEGORIES}</legend>
+    <span>{L_ACP_PCGF_PRIVATECATEGORIES}{L_COLON}</span>
+    <table class="table1">
+        <!-- IF PCGF_PRIVATE_CATEGORIES -->
+            <colgroup>
+                <col class="row1"/>
+                <col class="row1"/>
+                <col class="row2"/>
+            </colgroup>
+            <tbody>
+                <!-- BEGIN private_category_list -->
+                    <tr>
+                        <td class="folder row1"><img src="images/icon_subfolder.gif" alt="{L_FORUM_CAT}"/></td>
+                        <td class="forum-desc row1"><strong>{private_category_list.CATEGORY}</strong></td>
+                        <td class="actions row2">
+                            <a href="{U_ACTION}&amp;action=delete&amp;category_id={private_category_list.CATEGORY_ID}">
+                                <img src="images/icon_delete.gif" alt="{L_DELETE}" title="{L_DELETE}"/>
+                            </a>
+                        </td>
+                    </tr>
+                <!-- END private_category_list -->
+            </tbody>
+        <!-- ELSE -->
+            <tr>
+                <td>{L_ACP_PCGF_PRIVATECATEGORIES_NOTHING_FOUND}</td>
+            </tr>
+        <!-- ENDIF -->
+    </table>
+    <!-- IF AUTO_INHERITANCE_ACTIVATED -->
+        <br/>
+        <span>{L_ACP_PCGF_PRIVATECATEGORIES_INHERITED}{L_COLON}</span>
+        <table class="table1">
+            <!-- IF PCGF_INHERITED_PRIVATE_CATEGORIES -->
+                <colgroup>
+                    <col class="row1"/>
+                    <col class="row1"/>
+                </colgroup>
+                <tbody>
+                    <!-- BEGIN inherited_private_category_list -->
+                        <tr>
+                            <td class="folder row1"><img src="images/icon_subfolder.gif" alt="{L_FORUM_CAT}"/></td>
+                            <td class="forum-desc row1"><strong>{inherited_private_category_list.CATEGORY}</strong></td>
+                        </tr>
+                    <!-- END inherited_private_category_list -->
+                </tbody>
+            <!-- ELSE -->
+                <tr>
+                    <td>{L_ACP_PCGF_PRIVATECATEGORIES_INHERITED_NOTHING_FOUND}</td>
+                </tr>
+            <!-- ENDIF -->
+        </table>
+    <!-- ENDIF -->
+</fieldset>
+<form id="acp_pcgf_privatecategories_add" method="post" action="{U_ACTION}">
+    <fieldset class="quick">
+        <input type="hidden" name="action" value="add"/>
+        <select name="category_id">
+            <option value="-1"></option>
+            <!-- BEGIN category_list -->
+                <option value="{category_list.CATEGORY_ID}">{category_list.CATEGORY_NAME}</option>
+            <!-- END category_list -->
+        </select>
+        <input class="button2" type="submit" id="submit" name="submit" value="{L_ACP_PCGF_PRIVATECATEGORIES_MAKE_PRIVATE}"/>
+        {S_FORM_TOKEN}
+    </fieldset>
+</form>
+<form id="acp_pcgf_privatecategories_clean" method="post" action="{U_ACTION}">
+    <fieldset class="quick">
+        <input type="hidden" name="action" value="clean"/>
+        <input class="button2" type="submit" id="submit" name="submit" value="{L_ACP_PCGF_PRIVATECATEGORIES_CLEAN_PERMISSIONS}"/>
+        {S_FORM_TOKEN}
+    </fieldset>
+</form>
+<!-- INCLUDE overall_footer.html -->
