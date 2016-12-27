@@ -28,6 +28,7 @@ $lang = array_merge($lang, array(
     'ACP_PCGF_PRIVATECATEGORIES_INHERITED_NOTHING_FOUND'  => 'Es gibt keine Kategorie, welche durch Vererbung zur privaten Kategorie geworden ist.',
     'ACP_PCGF_PRIVATECATEGORIES_MAKE_PRIVATE'             => 'Zur privaten Kategorie machen',
     'ACP_PCGF_PRIVATECATEGORIES_CLEAN_PERMISSIONS'        => 'Datenbank bereinigen',
+    'ACP_PCGF_PRIVATECATEGORIES_SETTINGS_SAVED'           => 'Die Einstellungen wurden erfolgreich gespeichert!',
     'ACP_PCGF_PRIVATECATEGORIES_SETTING_PRIVATE_FAILED'   => 'Die Kategorie konnte nicht als privat markiert werden!',
     'ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED'     => 'Die Kategorie konnte nicht zur Standard-Kategorie geändert werden!',
 ));

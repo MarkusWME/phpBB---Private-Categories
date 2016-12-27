@@ -54,30 +54,28 @@
             </tr>
         <!-- ENDIF -->
     </table>
-    <!-- IF AUTO_INHERITANCE_ACTIVATED -->
-        <br/>
-        <span>{L_ACP_PCGF_PRIVATECATEGORIES_INHERITED}{L_COLON}</span>
-        <table class="table1">
-            <!-- IF PCGF_INHERITED_PRIVATE_CATEGORIES -->
-                <colgroup>
-                    <col class="row1"/>
-                    <col class="row1"/>
-                </colgroup>
-                <tbody>
-                    <!-- BEGIN inherited_private_category_list -->
-                        <tr>
-                            <td class="folder row1"><img src="images/icon_subfolder.gif" alt="{L_FORUM_CAT}"/></td>
-                            <td class="forum-desc row1"><strong>{inherited_private_category_list.CATEGORY}</strong></td>
-                        </tr>
-                    <!-- END inherited_private_category_list -->
-                </tbody>
-            <!-- ELSE -->
-                <tr>
-                    <td>{L_ACP_PCGF_PRIVATECATEGORIES_INHERITED_NOTHING_FOUND}</td>
-                </tr>
-            <!-- ENDIF -->
-        </table>
-    <!-- ENDIF -->
+    <br/>
+    <span>{L_ACP_PCGF_PRIVATECATEGORIES_INHERITED}{L_COLON}</span>
+    <table class="table1">
+        <!-- IF PCGF_INHERITED_PRIVATE_CATEGORIES -->
+            <colgroup>
+                <col class="row1"/>
+                <col class="row1"/>
+            </colgroup>
+            <tbody>
+                <!-- BEGIN inherited_private_category_list -->
+                    <tr>
+                        <td class="folder row1"><img src="images/icon_subfolder.gif" alt="{L_FORUM_CAT}"/></td>
+                        <td class="forum-desc row1"><strong>{inherited_private_category_list.CATEGORY}</strong></td>
+                    </tr>
+                <!-- END inherited_private_category_list -->
+            </tbody>
+        <!-- ELSE -->
+            <tr>
+                <td>{L_ACP_PCGF_PRIVATECATEGORIES_INHERITED_NOTHING_FOUND}</td>
+            </tr>
+        <!-- ENDIF -->
+    </table>
 </fieldset>
 <form id="acp_pcgf_privatecategories_add" method="post" action="{U_ACTION}">
     <fieldset class="quick">
@@ -85,7 +83,7 @@
         <select name="category_id">
             <option value="-1"></option>
             <!-- BEGIN category_list -->
-                <option value="{category_list.CATEGORY_ID}">{category_list.CATEGORY_NAME}</option>
+                <option <!-- IF category_list.CATEGORY_ID lt 0 -->class="disabled-option" disabled <!-- ENDIF -->value="{category_list.CATEGORY_ID}">{category_list.CATEGORY_NAME}</option>
             <!-- END category_list -->
         </select>
         <input class="button2" type="submit" id="submit" name="submit" value="{L_ACP_PCGF_PRIVATECATEGORIES_MAKE_PRIVATE}"/>

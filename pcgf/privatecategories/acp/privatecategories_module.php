@@ -9,7 +9,7 @@
 namespace pcgf\privatecategories\acp;
 
 global $phpbb_root_path;
-require($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
+require_once($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
 
 /** @version 1.0.0 */
 class privatecategories_module
@@ -45,7 +45,7 @@ class privatecategories_module
                     $query = 'UPDATE ' . FORUMS_TABLE . '
                               SET private_category = 1
                               WHERE forum_id = ' . $db->sql_escape($request->variable('category_id', -1));
-                    $result = $db->sql_query($query);
+                    $db->sql_query($query);
                     if ($db->sql_affectedrows() != 1)
                     {
                         trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_SETTING_PRIVATE_FAILED') . adm_back_link($this->u_action), E_USER_WARNING);
@@ -58,6 +58,7 @@ class privatecategories_module
                 case 'save':
                     // Save the auto inheritance setting
                     $config->set('pcgf_privatecategories_auto_inheritance', $request->variable('privatecategories_auto_inheritance', 1));
+                    trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_SETTINGS_SAVED') . adm_back_link($this->u_action));
                 break;
             }
         }
@@ -73,15 +74,19 @@ class privatecategories_module
                 trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED') . adm_back_link($this->u_action), E_USER_WARNING);
             }
         }
-        $category_array = pcgf_privatecategories_get_private_categories();
+        $category_array = get_private_categories();
+        $category_count = count($category_array);
         $private_categories = false;
         $inherited_categories = false;
-        foreach ($category_array as $category)
+        $private_additions = array();
+        for ($i = 0; $i < $category_count; $i++)
         {
+            $category = $category_array[$i];
             if ($category['private'] > 0)
             {
                 // Add the category to the private category list
                 $private_categories = true;
+                $private_additions[$category['level']] = $i;
                 $template->assign_block_vars('private_category_list', array(
                     'CATEGORY'    => $category['name'],
                     'CATEGORY_ID' => $category['id'],
@@ -89,6 +94,7 @@ class privatecategories_module
             }
             else
             {
+                $private_additions[$category['level']] = -1;
                 if ($category['private'] == 0)
                 {
                     // Add the category to the inherited private category list
@@ -96,6 +102,19 @@ class privatecategories_module
                     $template->assign_block_vars('inherited_private_category_list', array(
                         'CATEGORY' => $category['name'],
                     ));
+                }
+                // If the parent category is set to private show it in the addition list so that the structure is not confusing
+                for ($j = 0; $j < $category['level']; $j++)
+                {
+                    if ($private_additions[$j] < 0)
+                    {
+                        continue;
+                    }
+                    $template->assign_block_vars('category_list', array(
+                        'CATEGORY_ID'   => -1,
+                        'CATEGORY_NAME' => str_repeat('&nbsp', $category_array[$private_additions[$j]]['level'] * self::CATEGORY_INDENTATION_MULTIPLIER) . $category_array[$private_additions[$j]]['name'],
+                    ));
+                    $private_additions[$j] = -1;
                 }
                 // Add the category to the addition list so that it could be set to private
                 $template->assign_block_vars('category_list', array(
