@@ -9,6 +9,8 @@
 namespace pcgf\privatecategories\acp;
 
 global $phpbb_root_path;
+use pcgf\privatecategories\migrations\release_1_0_0;
+
 require_once($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
 
 /** @version 1.1.0 */
@@ -28,7 +30,7 @@ class privatecategories_module
 
     public function main($id, $mode)
     {
-        global $user, $request, $config, $db, $template;
+        global $user, $request, $config, $table_prefix, $db, $template;
         $this->page_title = $user->lang['ACP_PCGF_PRIVATECATEGORIES'];
         $this->tpl_name = 'acp_privatecategories_body';
         add_form_key('pcgf/privatecategories');
@@ -52,8 +54,43 @@ class privatecategories_module
                     }
                 break;
                 case 'clean':
-                    /// TODO: Clean up permissions table
-                    trigger_error('This function has not been implemented so far!' . adm_back_link($this->u_action), E_USER_WARNING);
+                    // Cleanup invalid topics
+                    $query = 'SELECT topic_id
+                        FROM ' . TOPICS_TABLE;
+                    $result = $db->sql_query($query);
+                    $ids = array();
+                    while ($row = $db->sql_fetchrow($result))
+                    {
+                        array_push($ids, $row['topic_id']);
+                    }
+                    $db->sql_freeresult($result);
+                    $query = 'DELETE FROM ' . $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . ' WHERE ' . $db->sql_in_set('topic', $ids, true);
+                    $db->sql_query($query);
+                    // Cleanup invalid groups
+                    $query = 'SELECT group_id
+                        FROM ' . GROUPS_TABLE;
+                    $result = $db->sql_query($query);
+                    $ids = array();
+                    while ($row = $db->sql_fetchrow($result))
+                    {
+                        array_push($ids, $row['group_id']);
+                    }
+                    $db->sql_freeresult($result);
+                    $query = 'DELETE FROM ' . $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . ' WHERE is_group = 1 AND ' . $db->sql_in_set('user', $ids, true);
+                    $db->sql_query($query);
+                    // Cleanup invalid users
+                    $query = 'SELECT user_id
+                        FROM ' . USERS_TABLE;
+                    $result = $db->sql_query($query);
+                    $ids = array();
+                    while ($row = $db->sql_fetchrow($result))
+                    {
+                        array_push($ids, $row['user_id']);
+                    }
+                    $db->sql_freeresult($result);
+                    $query = 'DELETE FROM ' . $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . ' WHERE is_group = 0 AND ' . $db->sql_in_set('user', $ids, true);
+                    $db->sql_query($query);
+                    trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_CLEANUP_EXECUTED') . adm_back_link($this->u_action));
                 break;
                 case 'save':
                     // Save the auto inheritance setting

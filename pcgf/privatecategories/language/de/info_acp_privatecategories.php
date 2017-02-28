@@ -32,4 +32,6 @@ $lang = array_merge($lang, array(
     'ACP_PCGF_PRIVATECATEGORIES_SETTINGS_SAVED'           => 'Die Einstellungen wurden erfolgreich gespeichert!',
     'ACP_PCGF_PRIVATECATEGORIES_SETTING_PRIVATE_FAILED'   => 'Die Kategorie konnte nicht als privat markiert werden!',
     'ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED'     => 'Die Kategorie konnte nicht zur Standard-Kategorie geändert werden!',
+    // New language data since version 1.1.0
+    'ACP_PCGF_PRIVATECATEGORIES_CLEANUP_EXECUTED'         => 'Die Bereinigung der Berechtigungen wurde ausgeführt!',
 ));

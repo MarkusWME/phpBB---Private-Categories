@@ -2,9 +2,9 @@
 
 /**
  * @author    MarkusWME <markuswme@pcgamingfreaks.at>
- * @copyright 2016 MarkusWME
+ * @copyright 2016, 2017 MarkusWME
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
- * @version   1.0.0
+ * @version   1.1.0
  */
 
 if (!defined('IN_PHPBB'))
@@ -32,4 +32,6 @@ $lang = array_merge($lang, array(
     'ACP_PCGF_PRIVATECATEGORIES_SETTINGS_SAVED'           => 'The settings have been saved successfully!',
     'ACP_PCGF_PRIVATECATEGORIES_SETTING_PRIVATE_FAILED'   => 'The category could not be set to be private!',
     'ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED'     => 'The category could not be set to be a public one!',
+    // New language data since version 1.1.0
+    'ACP_PCGF_PRIVATECATEGORIES_CLEANUP_EXECUTED'         => 'The permission cleanup has been executed!',
 ));
