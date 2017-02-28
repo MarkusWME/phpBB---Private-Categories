@@ -2,10 +2,18 @@ services:
     pcgf.privatecategories.listener:
         class: pcgf\privatecategories\event\listener
         arguments:
-            - @dbal.conn
-            - @config
-            - @template
-            - @user
-            - @auth
+            - '@dbal.conn'
+            - '@config'
+            - '@template'
+            - '@user'
+            - '@auth'
+            - '@controller.helper'
         tags:
             - { name: event.listener }
+    pcgf.privatecategories.controller:
+        class: pcgf\privatecategories\controller\controller
+        arguments:
+            - '@request'
+            - '@dbal.conn'
+            - '@auth'
+            - '@user'

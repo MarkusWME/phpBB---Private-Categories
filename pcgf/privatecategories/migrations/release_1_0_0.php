@@ -2,7 +2,7 @@
 
 /**
  * @author    MarkusWME <markuswme@pcgamingfreaks.at>
- * @copyright 2016 MarkusWME
+ * @copyright 2016, 2017 MarkusWME
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  */
 
@@ -10,7 +10,7 @@ namespace pcgf\privatecategories\migrations;
 
 use phpbb\db\migration\migration;
 
-/** @version 1.0.0 */
+/** @version 1.1.0 */
 class release_1_0_0 extends migration
 {
     const PRIVATECATEGORY_PERMISSION_TABLE = 'private_category_permissions';
@@ -57,8 +57,8 @@ class release_1_0_0 extends migration
             'add_tables'  => array(
                 $this->table_prefix . self::PRIVATECATEGORY_PERMISSION_TABLE => array(
                     'COLUMNS'     => array(
-                        'topic'    => array('UINT', null, 'NOT NULL'),
-                        'user'     => array('UINT', null, 'NOT NULL'),
+                        'topic'    => array('UINT', 0),
+                        'user'     => array('UINT', 0),
                         'is_group' => array('BOOL', 0),
                     ),
                     'PRIMARY_KEY' => 'topic, user, is_group',

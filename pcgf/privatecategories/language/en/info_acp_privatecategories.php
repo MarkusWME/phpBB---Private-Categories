@@ -4,6 +4,7 @@
  * @author    MarkusWME <markuswme@pcgamingfreaks.at>
  * @copyright 2016 MarkusWME
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+ * @version   1.0.0
  */
 
 if (!defined('IN_PHPBB'))

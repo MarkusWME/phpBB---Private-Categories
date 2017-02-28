@@ -1,0 +1,9 @@
+pcgf_privatecategories_suggestions:
+    path: /pcgf/privatecategorysuggestions
+    defaults: { _controller: pcgf.privatecategories.controller:get_suggestions }
+pcgf_privatecategories_add:
+    path: /pcgf/privatecategoryadd
+    defaults: { _controller: pcgf.privatecategories.controller:add_viewer }
+pcgf_privatecategories_remove:
+    path: /pcgf/privatecategoryremove
+    defaults: { _controller: pcgf.privatecategories.controller:remove_viewer }

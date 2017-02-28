@@ -2,7 +2,7 @@
 
 /**
  * @author    MarkusWME <markuswme@pcgamingfreaks.at>
- * @copyright 2016 MarkusWME
+ * @copyright 2016, 2017 MarkusWME
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  */
 
@@ -11,7 +11,7 @@ namespace pcgf\privatecategories\acp;
 global $phpbb_root_path;
 require_once($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
 
-/** @version 1.0.0 */
+/** @version 1.1.0 */
 class privatecategories_module
 {
     /** @const Defines the space count that indents subcategories */
@@ -68,7 +68,7 @@ class privatecategories_module
             $query = 'UPDATE ' . FORUMS_TABLE . '
                               SET private_category = 0
                               WHERE forum_id = ' . $db->sql_escape($request->variable('category_id', -1));
-            $result = $db->sql_query($query);
+            $db->sql_query($query);
             if ($db->sql_affectedrows() != 1)
             {
                 trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED') . adm_back_link($this->u_action), E_USER_WARNING);

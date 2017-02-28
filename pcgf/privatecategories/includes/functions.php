@@ -4,6 +4,7 @@
  * @author    MarkusWME <markuswme@pcgamingfreaks.at>
  * @copyright 2016 MarkusWME
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+ * @version   1.1.0
  */
 
 if (!defined('IN_PHPBB'))
@@ -17,7 +18,7 @@ if (!defined('IN_PHPBB'))
  * @access public
  * @since  1.0.0
  *
- * @param $category_id The id of the category that should be checked
+ * @param int $category_id The id of the category that should be checked
  *
  * @return bool If the category is private or not
  */
@@ -35,7 +36,7 @@ function is_private($category_id)
 }
 
 /**
- * Function that returns all catagories and the privacy status of them
+ * Function that returns all categories and the privacy status of them
  *
  * @access public
  * @since  1.0.0
@@ -112,6 +113,18 @@ function get_category_array(&$category_array, &$categories, &$inheritance_list, 
     }
 }
 
+/**
+ * Checks if the stated user has the permission to view the selected topic
+ *
+ * @param int                      $user_id     The user id of the user that should be checked
+ * @param int                      $category_id The category id of the topic the user wants to see
+ * @param int                      $topic_id    The id of the topic the user wants to see
+ * @param int                      $poster_id   The id of the poster
+ * @param \phpbb\auth\auth         $auth        The authentication object
+ * @param \phpbb\db\driver\factory $db          The database object
+ *
+ * @return bool If the user has the permission to view the topic
+ */
 function has_permissions($user_id, $category_id, $topic_id, $poster_id, &$auth, &$db)
 {
     if (!is_private($category_id))
@@ -147,5 +160,37 @@ function has_permissions($user_id, $category_id, $topic_id, $poster_id, &$auth, 
                                         AND p.topic = ' . $db->sql_escape($topic_id),
     );
     $result = $db->sql_query($db->sql_build_query('SELECT', $query_array));
-    return $db->sql_fetchrow($result) !== false;
+    $has_permission = $db->sql_fetchrow($result) !== false;
+    $db->sql_freeresult($result);
+    return $has_permission;
+}
+
+/**
+ * Function that returns a formatted user link
+ *
+ * @param array $user_data The id, name and colour of the user
+ *
+ * @return string Formatted user link
+ */
+function get_formatted_user($user_data)
+{
+    $user_string = get_username_string('full', $user_data[0], $user_data[1], $user_data[2]);
+    if (strpos($user_string, '<a') !== 0)
+    {
+        $user_string = '<a data="' . $user_data[0] . '">' . $user_string . '</a>';
+    }
+    return $user_string;
+}
+
+/**
+ * Function that returns a formatted group link
+ *
+ * @param array $group_data The id, name and colour of the group
+ *
+ * @return string Formatted group link
+ */
+function get_formatted_group($group_data)
+{
+    global $phpbb_root_path, $phpEx;
+    return '<a' . ($group_data[2] != '' ? ' style="color: #' . $group_data[2] . '"' : '') . ' href="' . append_sid($phpbb_root_path . 'memberlist.' . $phpEx, 'mode=group&amp;g=' . $group_data[0]) . '">' . $group_data[1] . '</a>';
 }
