@@ -8,9 +8,9 @@
 
 namespace pcgf\privatecategories\acp;
 
-global $phpbb_root_path;
 use pcgf\privatecategories\migrations\release_1_0_0;
 
+global $phpbb_root_path;
 require_once($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
 
 /** @version 1.1.0 */
