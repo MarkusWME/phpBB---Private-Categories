@@ -71,14 +71,16 @@ class listener implements EventSubscriberInterface
      *
      * @access public
      * @since  1.0.0
+     *
      * @return array The subscribed event list
      */
     static public function getSubscribedEvents()
     {
         return array(
-            'core.permissions'                  => 'add_permission_data',
-            'core.viewtopic_get_post_data'      => 'check_topic_view_permissions',
-            'core.viewforum_modify_topics_data' => 'check_category_view_permissions',
+            'core.permissions'                      => 'add_permission_data',
+            'core.viewtopic_get_post_data'          => 'check_topic_view_permissions',
+            'core.viewforum_modify_topics_data'     => 'check_category_view_permissions',
+            'core.display_forums_modify_forum_rows' => 'obfuscate_forum_data',
         );
     }
 
@@ -222,6 +224,9 @@ class listener implements EventSubscriberInterface
     /**
      * Function that checks which topics should be shown to the user
      *
+     * @access public
+     * @since  1.1.0
+     *
      * @param array $event The event object which contains specific information
      */
     public function check_category_view_permissions($event)
@@ -236,5 +241,87 @@ class listener implements EventSubscriberInterface
             }
         }
         $event['topic_list'] = $topics;
+    }
+
+    /**
+     * Function that obfuscates all forums so that only visible topics (title and count) will be shown to the user
+     *
+     * @access public
+     * @since  1.1.0
+     *
+     * @param array $event The event object
+     */
+    public function obfuscate_forum_data($event)
+    {
+        //var_dump($event['forum_rows']);
+        $forums = $event['forum_rows'];
+        foreach ($forums as $forum)
+        {
+            if ($forum['parent_id'] == $event['branch_root_id'])
+            {
+                $forum['forum_last_post_id'] = 0;
+                $forum['forum_last_post_subject'] = '';
+                $forum['forum_last_post_time'] = 0;
+                $forum['forum_last_poster_name'] = '';
+                $forum['forum_topics'] = 0;
+                $forum['forum_posts'] = 0;
+                // Get subforums and count posts
+                $forum_ids = $this->get_subforums(array($forum['forum_id']));
+                $query = 'SELECT topic_id, forum_id, topic_last_post_id, topic_last_post_subject, topic_last_post_time, topic_last_poster_name, topic_poster, topic_posts_approved + topic_posts_unapproved + topic_posts_softdeleted AS posts
+                    FROM ' . TOPICS_TABLE . '
+                    WHERE ' . $this->db->sql_in_set('forum_id', $forum_ids);
+                $result = $this->db->sql_query($query);
+                while ($topic = $this->db->sql_fetchrow($result))
+                {
+                    if (has_permissions($this->user->data['user_id'], $topic['forum_id'], $topic['topic_id'], $topic['topic_poster'], $this->auth, $this->db))
+                    {
+                        if ($topic['topic_last_post_time'] > $forum['forum_last_post_time'])
+                        {
+                            // Show the last visible post
+                            $forum['forum_last_post_id'] = $topic['topic_last_post_id'];
+                            $forum['forum_last_post_subject'] = $topic['topic_last_post_subject'];
+                            $forum['forum_last_post_time'] = $topic['topic_last_post_time'];
+                            $forum['forum_last_poster_name'] = $topic['topic_last_poster_name'];
+                        }
+                        $forum['forum_topics']++;
+                        $forum['forum_posts'] += $topic['posts'];
+                    }
+                }
+                $this->db->sql_freeresult($result);
+                // Reassign the forum
+                $forums[$forum['forum_id']] = $forum;
+            }
+        }
+        $event['forum_rows'] = $forums;
+    }
+
+    /**
+     * Function that retrieves all subforums to a given forum list
+     *
+     * @access protected
+     * @since  1.1.0
+     *
+     * @param array $forum_ids A list of forum ids
+     *
+     * @return array List with all forum ids including the given ones
+     */
+    protected function get_subforums($forum_ids)
+    {
+        if (count($forum_ids) <= 0)
+        {
+            return array();
+        }
+        // Get all subforum ids recursively
+        $query = 'SELECT forum_id
+            FROM ' . FORUMS_TABLE . '
+            WHERE ' . $this->db->sql_in_set('parent_id', $forum_ids);
+        $result = $this->db->sql_query($query);
+        $subforums = array();
+        while ($row = $this->db->sql_fetchrow($result))
+        {
+            array_push($subforums, $row['forum_id']);
+        }
+        $this->db->sql_freeresult($result);
+        return array_merge($forum_ids, $this->get_subforums($subforums));
     }
 }
