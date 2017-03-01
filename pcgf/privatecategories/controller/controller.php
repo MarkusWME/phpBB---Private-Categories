@@ -8,18 +8,15 @@
 
 namespace pcgf\privatecategories\controller;
 
+use pcgf\privatecategories\includes\permission_helper;
 use pcgf\privatecategories\migrations\release_1_0_0;
 use phpbb\auth\auth;
 use phpbb\db\driver\factory;
-use phpbb\group\helper;
 use phpbb\json_response;
 use phpbb\request\request;
 use phpbb\user;
 
-global $phpbb_root_path;
-require_once($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
-
-/** @version 1.1.0 */
+/** @version 1.1.1 */
 class controller
 {
     /** @const Max amount of suggestions for users or groups */
@@ -37,23 +34,28 @@ class controller
     /** @var  user The user object */
     protected $user;
 
+    /** @var  permission_helper $permission_helper The permission helper object */
+    protected $permission_helper;
+
     /**
      * Constructor
      *
      * @access public
      * @since  1.1.0
      *
-     * @param request $request The request object
-     * @param factory $db      The database object
-     * @param auth    $auth    The authentication object
-     * @param user    $user    The user object
+     * @param request           $request           The request object
+     * @param factory           $db                The database object
+     * @param auth              $auth              The authentication object
+     * @param user              $user              The user object
+     * @param permission_helper $permission_helper The permission helper object
      */
-    public function __construct(request $request, factory $db, auth $auth, user $user)
+    public function __construct(request $request, factory $db, auth $auth, user $user, permission_helper $permission_helper)
     {
         $this->request = $request;
         $this->db = $db;
         $this->auth = $auth;
         $this->user = $user;
+        $this->permission_helper = $permission_helper;
     }
 
     /**
@@ -89,7 +91,7 @@ class controller
                 while ($user = $this->db->sql_fetchrow($result))
                 {
                     $this->auth->acl($user);
-                    if (!has_permissions($user['user_id'], $category, $topic, $owner, $this->auth, $this->db))
+                    if (!$this->permission_helper->has_permissions($user['user_id'], $category, $topic, $owner, $this->auth, $this->db))
                     {
                         array_push($response_data['users'], array($user['user_id'], get_username_string('no_profile', $user['user_id'], $user['username'], $user['user_colour'])));
                     }
@@ -180,7 +182,7 @@ class controller
                         {
                             $added_viewer['type'] = 'group';
                             $group_helper = $phpbb_container->get('group_helper');
-                            $added_viewer['viewer'] = get_formatted_user(array($group['group_id'], $group_helper->get_name($group['group_name']), $group['group_colour']));
+                            $added_viewer['viewer'] = $this->permission_helper->get_formatted_user(array($group['group_id'], $group_helper->get_name($group['group_name']), $group['group_colour']));
                         }
                         $this->db->sql_freeresult($result);
                     }
@@ -194,7 +196,7 @@ class controller
                         if ($user = $this->db->sql_fetchrow($result))
                         {
                             $added_viewer['type'] = 'user';
-                            $added_viewer['viewer'] = get_formatted_user(array($user['user_id'], $user['username'], $user['user_colour']));
+                            $added_viewer['viewer'] = $this->permission_helper->get_formatted_user(array($user['user_id'], $user['username'], $user['user_colour']));
                         }
                         $this->db->sql_freeresult($result);
                     }

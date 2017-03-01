@@ -8,12 +8,10 @@
 
 namespace pcgf\privatecategories\acp;
 
+use pcgf\privatecategories\includes\permission_helper;
 use pcgf\privatecategories\migrations\release_1_0_0;
 
-global $phpbb_root_path;
-require_once($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
-
-/** @version 1.1.0 */
+/** @version 1.1.1 */
 class privatecategories_module
 {
     /** @const Defines the space count that indents subcategories */
@@ -27,6 +25,21 @@ class privatecategories_module
 
     /** @var  object $u_action The user action */
     public $u_action;
+
+    /** @var permission_helper $permission_helper The permission helper object */
+    protected $permission_helper;
+
+    /**
+     * Constructor
+     *
+     * @access public
+     * @since  1.1.1
+     */
+    public function __construct()
+    {
+        global $phpbb_container;
+        $this->permission_helper = $phpbb_container->get('pcgf.privatecategories.permission_helper');
+    }
 
     public function main($id, $mode)
     {
@@ -111,7 +124,7 @@ class privatecategories_module
                 trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED') . adm_back_link($this->u_action), E_USER_WARNING);
             }
         }
-        $category_array = get_private_categories();
+        $category_array = $this->permission_helper->get_private_categories();
         $category_count = count($category_array);
         $private_categories = false;
         $inherited_categories = false;

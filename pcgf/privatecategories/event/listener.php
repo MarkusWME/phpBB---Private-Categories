@@ -8,6 +8,7 @@
 
 namespace pcgf\privatecategories\event;
 
+use pcgf\privatecategories\includes\permission_helper;
 use pcgf\privatecategories\migrations\release_1_0_0;
 use phpbb\auth\auth;
 use phpbb\config\config;
@@ -17,10 +18,7 @@ use phpbb\template\template;
 use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-global $phpbb_root_path;
-require_once($phpbb_root_path . 'ext/pcgf/privatecategories/includes/functions.php');
-
-/** @version 1.1.0 */
+/** @version 1.1.1 */
 class listener implements EventSubscriberInterface
 {
     /** @var factory $db Database object */
@@ -41,20 +39,24 @@ class listener implements EventSubscriberInterface
     /** @var  helper $helper The helper object */
     protected $helper;
 
+    /** @var  permission_helper $permission_helper The permission helper object */
+    protected $permission_helper;
+
     /**
      * Constructor for the extension listener
      *
      * @access public
      * @since  1.0.0
      *
-     * @param factory  $db       Database object
-     * @param config   $config   Configuration object
-     * @param template $template Template object
-     * @param user     $user     The user object
-     * @param auth     $auth     The authentication object
-     * @param          $helper   $helper The helper object
+     * @param factory           $db                Database object
+     * @param config            $config            Configuration object
+     * @param template          $template          Template object
+     * @param user              $user              The user object
+     * @param auth              $auth              The authentication object
+     * @param helper            $helper            $helper The helper object
+     * @param permission_helper $permission_helper The permission helper object
      */
-    public function __construct(factory $db, config $config, template $template, user $user, auth $auth, helper $helper)
+    public function __construct(factory $db, config $config, template $template, user $user, auth $auth, helper $helper, permission_helper $permission_helper)
     {
         $this->db = $db;
         $this->config = $config;
@@ -62,6 +64,7 @@ class listener implements EventSubscriberInterface
         $this->user = $user;
         $this->auth = $auth;
         $this->helper = $helper;
+        $this->permission_helper = $permission_helper;
         // Load language data of the extension
         $this->user->add_lang_ext('pcgf/privatecategories', 'privatecategories');
     }
@@ -129,7 +132,7 @@ class listener implements EventSubscriberInterface
      */
     public function check_topic_view_permissions($event)
     {
-        if (has_permissions($this->user->data['user_id'], $event['forum_id'], $event['topic_id'], $event['topic_data']['topic_poster'], $this->auth, $this->db))
+        if ($this->permission_helper->has_permissions($this->user->data['user_id'], $event['forum_id'], $event['topic_id'], $event['topic_data']['topic_poster'], $this->auth, $this->db))
         {
             global $table_prefix;
             // Add the topic owner to the list of allowed viewers
@@ -192,11 +195,11 @@ class listener implements EventSubscriberInterface
             // Create the lists of users and groups
             foreach ($allowed_users as $allowed_user)
             {
-                $allowed_users_string .= get_formatted_user($allowed_user) . ',&nbsp;';
+                $allowed_users_string .= $this->permission_helper->get_formatted_user($allowed_user) . ',&nbsp;';
             }
             foreach ($allowed_groups as $allowed_group)
             {
-                $allowed_groups_string .= get_formatted_group($allowed_group) . ',&nbsp;';
+                $allowed_groups_string .= $this->permission_helper->get_formatted_group($allowed_group) . ',&nbsp;';
             }
             $this->template->assign_vars(array(
                 'PCGF_PRIVATECATEGORIES_ALLOWED_USERS'   => substr($allowed_users_string, 0, -7),
@@ -234,7 +237,7 @@ class listener implements EventSubscriberInterface
         $topics = $event['topic_list'];
         for ($i = 0; $i < $event['total_topic_count']; $i++)
         {
-            if (!has_permissions($this->user->data['user_id'], $event['rowset'][$topics[$i]]['forum_id'], $event['rowset'][$topics[$i]]['topic_id'], $event['rowset'][$topics[$i]]['topic_poster'], $this->auth, $this->db))
+            if (!$this->permission_helper->has_permissions($this->user->data['user_id'], $event['rowset'][$topics[$i]]['forum_id'], $event['rowset'][$topics[$i]]['topic_id'], $event['rowset'][$topics[$i]]['topic_poster'], $this->auth, $this->db))
             {
                 // If the user doesn't have the permissions to view the topic don't show it on the list
                 unset($topics[$i--]);
@@ -273,7 +276,7 @@ class listener implements EventSubscriberInterface
                 $result = $this->db->sql_query($query);
                 while ($topic = $this->db->sql_fetchrow($result))
                 {
-                    if (has_permissions($this->user->data['user_id'], $topic['forum_id'], $topic['topic_id'], $topic['topic_poster'], $this->auth, $this->db))
+                    if ($this->permission_helper->has_permissions($this->user->data['user_id'], $topic['forum_id'], $topic['topic_id'], $topic['topic_poster'], $this->auth, $this->db))
                     {
                         if ($topic['topic_last_post_time'] > $forum['forum_last_post_time'])
                         {
