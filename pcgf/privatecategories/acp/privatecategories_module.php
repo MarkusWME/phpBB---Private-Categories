@@ -44,7 +44,7 @@ class privatecategories_module
     public function main($id, $mode)
     {
         global $user, $request, $config, $table_prefix, $db, $template;
-        $this->page_title = $user->lang['ACP_PCGF_PRIVATECATEGORIES'];
+        $this->page_title = $user->lang('ACP_PCGF_PRIVATECATEGORIES');
         $this->tpl_name = 'acp_privatecategories_body';
         add_form_key('pcgf/privatecategories');
         if ($request->is_set_post('submit'))
