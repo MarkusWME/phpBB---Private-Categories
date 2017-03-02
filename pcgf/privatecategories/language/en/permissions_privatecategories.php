@@ -20,9 +20,9 @@ if (empty($lang) || !is_array($lang))
 // Add language data for permissions
 $lang = array_merge($lang, array(
     'ACL_CAT_PCGF_PRIVATECATEGORIES'          => 'Private Categories',
-    'ACL_F_PCGF_PRIVATECATEGORIES_SEE_ALL'    => 'Can see all private categories',
-    'ACL_F_PCGF_PRIVATECATEGORIES_INVITE_ALL' => 'Can make every topic in a private category visible for everybody',
-    'ACL_F_PCGF_PRIVATECATEGORIES_INVITE_OWN' => 'Can make his own topics in private categories visible for everybody',
+    'ACL_F_PCGF_PRIVATECATEGORIES_SEE_ALL'    => 'Can see all private topics',
+    'ACL_F_PCGF_PRIVATECATEGORIES_INVITE_ALL' => 'Can make every topic in a private category visible for specified users and groups',
+    'ACL_F_PCGF_PRIVATECATEGORIES_INVITE_OWN' => 'Can make his own topics in private categories visible for specified users and groups',
     'ACL_F_PCGF_PRIVATECATEGORIES_REMOVE_ALL' => 'Can remove users and groups from all private topics',
     'ACL_F_PCGF_PRIVATECATEGORIES_REMOVE_OWN' => 'Can remove users and groups from his own private topics',
 ));
