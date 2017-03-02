@@ -18,7 +18,7 @@ use phpbb\template\template;
 use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/** @version 1.1.1 */
+/** @version 1.2.0 */
 class listener implements EventSubscriberInterface
 {
     /** @var factory $db Database object */
@@ -84,6 +84,7 @@ class listener implements EventSubscriberInterface
             'core.viewtopic_get_post_data'          => 'check_topic_view_permissions',
             'core.viewforum_modify_topics_data'     => 'check_category_view_permissions',
             'core.display_forums_modify_forum_rows' => 'obfuscate_forum_data',
+            'core.search_modify_rowset'             => 'filter_search_results',
         );
     }
 
@@ -132,7 +133,7 @@ class listener implements EventSubscriberInterface
      */
     public function check_topic_view_permissions($event)
     {
-        if ($this->permission_helper->has_permissions($this->user->data['user_id'], $event['forum_id'], $event['topic_id'], $event['topic_data']['topic_poster'], $this->auth, $this->db))
+        if ($this->permission_helper->has_permissions($this->user->data['user_id'], $event['forum_id'], $event['topic_id'], $event['topic_data']['topic_poster']))
         {
             global $table_prefix;
             // Add the topic owner to the list of allowed viewers
@@ -237,7 +238,7 @@ class listener implements EventSubscriberInterface
         $topics = $event['topic_list'];
         for ($i = 0; $i < $event['total_topic_count']; $i++)
         {
-            if (!$this->permission_helper->has_permissions($this->user->data['user_id'], $event['rowset'][$topics[$i]]['forum_id'], $event['rowset'][$topics[$i]]['topic_id'], $event['rowset'][$topics[$i]]['topic_poster'], $this->auth, $this->db))
+            if (!$this->permission_helper->has_permissions($this->user->data['user_id'], $event['rowset'][$topics[$i]]['forum_id'], $event['rowset'][$topics[$i]]['topic_id'], $event['rowset'][$topics[$i]]['topic_poster']))
             {
                 // If the user doesn't have the permissions to view the topic don't show it on the list
                 unset($topics[$i--]);
@@ -276,7 +277,7 @@ class listener implements EventSubscriberInterface
                 $result = $this->db->sql_query($query);
                 while ($topic = $this->db->sql_fetchrow($result))
                 {
-                    if ($this->permission_helper->has_permissions($this->user->data['user_id'], $topic['forum_id'], $topic['topic_id'], $topic['topic_poster'], $this->auth, $this->db))
+                    if ($this->permission_helper->has_permissions($this->user->data['user_id'], $topic['forum_id'], $topic['topic_id'], $topic['topic_poster']))
                     {
                         if ($topic['topic_last_post_time'] > $forum['forum_last_post_time'])
                         {
@@ -326,5 +327,40 @@ class listener implements EventSubscriberInterface
         }
         $this->db->sql_freeresult($result);
         return array_merge($forum_ids, $this->get_subforums($subforums));
+    }
+
+    /**
+     * Function that filters search results
+     *
+     * @access public
+     * @since  1.2.0
+     *
+     * @param array $event The event data
+     */
+    public function filter_search_results($event)
+    {
+        $rowset = $event['rowset'];
+        if ($event['show_results'] == 'topics')
+        {
+            foreach ($rowset as $row)
+            {
+                if (!$this->permission_helper->has_permissions($this->user->data['user_id'], $row['forum_id'], $row['topic_id'], $row['topic_poster']))
+                {
+                    unset($rowset[$row['topic_id']]);
+                }
+            }
+        }
+        else
+        {
+            $post_count = count($rowset);
+            for ($i = 0; $i < $post_count; $i++)
+            {
+                if (!$this->permission_helper->has_permissions($this->user->data['user_id'], $rowset[$i]['forum_id'], $rowset[$i]['topic_id'], $rowset[$i]['topic_poster']))
+                {
+                    unset($rowset[$i]);
+                }
+            }
+        }
+        $event['rowset'] = $rowset;
     }
 }

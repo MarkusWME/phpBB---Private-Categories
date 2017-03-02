@@ -11,6 +11,7 @@ A phpBB extension that allows to create private categories where only selected u
 * ACP module where you can select which category or forum should be private
     * Inheritance can be enabled
 * Forum obfuscation shows correct counts and last post so that no private data leaks
+* Filter search results so that private topics or posts won't be shown
 
 ## Supported styles
 * prosilver

@@ -91,7 +91,7 @@ class controller
                 while ($user = $this->db->sql_fetchrow($result))
                 {
                     $this->auth->acl($user);
-                    if (!$this->permission_helper->has_permissions($user['user_id'], $category, $topic, $owner, $this->auth, $this->db))
+                    if (!$this->permission_helper->has_permissions($user['user_id'], $category, $topic, $owner))
                     {
                         array_push($response_data['users'], array($user['user_id'], get_username_string('no_profile', $user['user_id'], $user['username'], $user['user_colour'])));
                     }
