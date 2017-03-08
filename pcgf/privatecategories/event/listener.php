@@ -268,11 +268,12 @@ class listener implements EventSubscriberInterface
                 $forum['forum_last_post_time'] = 0;
                 $forum['forum_last_poster_id'] = 0;
                 $forum['forum_last_poster_name'] = '';
+                $forum['forum_last_poster_colour'] = '';
                 $forum['forum_topics'] = 0;
                 $forum['forum_posts'] = 0;
                 // Get subforums and count posts
                 $forum_ids = $this->get_subforums(array($forum['forum_id']));
-                $query = 'SELECT topic_id, forum_id, topic_last_post_id, topic_last_post_subject, topic_last_post_time, topic_last_poster_id, topic_last_poster_name, topic_poster, topic_posts_approved + topic_posts_unapproved + topic_posts_softdeleted AS posts
+                $query = 'SELECT topic_id, forum_id, topic_last_post_id, topic_last_post_subject, topic_last_post_time, topic_last_poster_id, topic_last_poster_name, topic_last_poster_colour, topic_poster, topic_posts_approved + topic_posts_unapproved + topic_posts_softdeleted AS posts
                     FROM ' . TOPICS_TABLE . '
                     WHERE ' . $this->db->sql_in_set('forum_id', $forum_ids);
                 $result = $this->db->sql_query($query);
@@ -288,6 +289,7 @@ class listener implements EventSubscriberInterface
                             $forum['forum_last_post_time'] = $topic['topic_last_post_time'];
                             $forum['forum_last_poster_id'] = $topic['topic_last_poster_id'];
                             $forum['forum_last_poster_name'] = $topic['topic_last_poster_name'];
+                            $forum['forum_last_poster_colour'] = $topic['topic_last_poster_colour'];
                         }
                         $forum['forum_topics']++;
                         $forum['forum_posts'] += $topic['posts'];
