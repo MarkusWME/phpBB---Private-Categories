@@ -11,7 +11,7 @@ namespace pcgf\privatecategories\acp;
 use pcgf\privatecategories\includes\permission_helper;
 use pcgf\privatecategories\migrations\release_1_0_0;
 
-/** @version 1.1.1 */
+/** @version 1.2.1 */
 class privatecategories_module
 {
     /** @const Defines the space count that indents subcategories */

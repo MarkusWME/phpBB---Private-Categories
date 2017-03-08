@@ -18,7 +18,7 @@ use phpbb\template\template;
 use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/** @version 1.2.0 */
+/** @version 1.2.1 */
 class listener implements EventSubscriberInterface
 {
     /** @var factory $db Database object */
@@ -209,6 +209,7 @@ class listener implements EventSubscriberInterface
                 'PCGF_PRIVATECATEGORIES_ADD_LINK'        => $this->helper->route('pcgf_privatecategories_add'),
                 'PCGF_PRIVATECATEGORIES_REMOVE_LINK'     => $this->helper->route('pcgf_privatecategories_remove'),
                 'PCGF_PRIVATECATEGORIES_OWNER'           => $event['topic_data']['topic_poster'],
+                'PCGF_IS_PRIVATETOPIC'                   => $this->permission_helper->is_private($event['forum_id']),
             ));
             // Show add and delete options if the user is allowed
             if ($this->auth->acl_get('f_pcgf_privatecategories_invite_all', $event['forum_id']) || ($this->auth->acl_get('f_pcgf_privatecategories_invite_own', $event['forum_id']) && $this->user->data['user_id'] == $event['topic_data']['topic_poster']))
@@ -257,7 +258,6 @@ class listener implements EventSubscriberInterface
      */
     public function obfuscate_forum_data($event)
     {
-        //var_dump($event['forum_rows']);
         $forums = $event['forum_rows'];
         foreach ($forums as $forum)
         {
@@ -266,12 +266,13 @@ class listener implements EventSubscriberInterface
                 $forum['forum_last_post_id'] = 0;
                 $forum['forum_last_post_subject'] = '';
                 $forum['forum_last_post_time'] = 0;
+                $forum['forum_last_poster_id'] = 0;
                 $forum['forum_last_poster_name'] = '';
                 $forum['forum_topics'] = 0;
                 $forum['forum_posts'] = 0;
                 // Get subforums and count posts
                 $forum_ids = $this->get_subforums(array($forum['forum_id']));
-                $query = 'SELECT topic_id, forum_id, topic_last_post_id, topic_last_post_subject, topic_last_post_time, topic_last_poster_name, topic_poster, topic_posts_approved + topic_posts_unapproved + topic_posts_softdeleted AS posts
+                $query = 'SELECT topic_id, forum_id, topic_last_post_id, topic_last_post_subject, topic_last_post_time, topic_last_poster_id, topic_last_poster_name, topic_poster, topic_posts_approved + topic_posts_unapproved + topic_posts_softdeleted AS posts
                     FROM ' . TOPICS_TABLE . '
                     WHERE ' . $this->db->sql_in_set('forum_id', $forum_ids);
                 $result = $this->db->sql_query($query);
@@ -285,6 +286,7 @@ class listener implements EventSubscriberInterface
                             $forum['forum_last_post_id'] = $topic['topic_last_post_id'];
                             $forum['forum_last_post_subject'] = $topic['topic_last_post_subject'];
                             $forum['forum_last_post_time'] = $topic['topic_last_post_time'];
+                            $forum['forum_last_poster_id'] = $topic['topic_last_poster_id'];
                             $forum['forum_last_poster_name'] = $topic['topic_last_poster_name'];
                         }
                         $forum['forum_topics']++;

@@ -13,7 +13,7 @@ use phpbb\auth\auth;
 use phpbb\config\config;
 use phpbb\db\driver\factory;
 
-/** @version 1.1.1 */
+/** @version 1.2.1 */
 class permission_helper
 {
     /** @var auth $auth The authentication object */
@@ -47,6 +47,7 @@ class permission_helper
     {
         $this->auth = $auth;
         $this->db = $db;
+        $this->config = $config;
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
     }
@@ -122,7 +123,7 @@ class permission_helper
      *
      * @param array $category_array   The output array where data should be added to
      * @param array $categories       Array with all categories
-     * @param array $inheritance_list Array wich contains inheritance information for the categories
+     * @param array $inheritance_list Array which contains inheritance information for the categories
      * @param int   $level            The indentation level of the category
      * @param int   $id               The id of the category where information should be retrieved
      * @param int   $private          If the category inherits privacy or not
@@ -145,7 +146,7 @@ class permission_helper
         {
             foreach ($inheritance_list[$id] as $child)
             {
-                $this->get_category_array($category_array, $categories, $inheritance_list, $level + 1, $child, ($private >= 0 && ($this->config['pcgf_privatecategories_auto_inheritance'] == true || $categories[$id]['type'] == 0)) ? 0 : -1);
+                $this->get_category_array($category_array, $categories, $inheritance_list, $level + 1, $child, ($private >= 0 && ($this->config['pcgf_privatecategories_auto_inheritance'] == true || $categories[$id]['type'] == FORUM_CAT)) ? 0 : -1);
             }
         }
     }

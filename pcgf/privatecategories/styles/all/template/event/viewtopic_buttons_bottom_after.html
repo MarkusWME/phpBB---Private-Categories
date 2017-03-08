@@ -1,49 +1,51 @@
-<!-- INCLUDECSS @pcgf_privatecategories/privatecategories.css -->
-<div class="privatecategory-edit panel">
-    <div class="panel-body">
-        <div>
-            <dl>
-                <dt>{L_PCGF_PRIVATECATEGORIES_ALLOWED_USERS}{L_COLON}</dt>
-                <dd><span id="pcgf-privatecategories-allowed-users">{PCGF_PRIVATECATEGORIES_ALLOWED_USERS}</span></dd>
-                <br/>
-                <dt>{L_PCGF_PRIVATECATEGORIES_ALLOWED_GROUPS}{L_COLON}</dt>
-                <dd><span id="pcgf-privatecategories-allowed-groups">{PCGF_PRIVATECATEGORIES_ALLOWED_GROUPS}</span></dd>
-                <br/>
-            </dl>
-        </div>
-        <!-- IF PCGF_PRIVATECATEGORIES_ADD -->
+<!-- IF PCGF_IS_PRIVATETOPIC -->
+    <!-- INCLUDECSS @pcgf_privatecategories/privatecategories.css -->
+    <div class="privatecategory-edit panel">
+        <div class="panel-body">
             <div>
-                <label for="pcgf-privatecategories-add-viewer">{L_PCGF_PRIVATECATEGORIES_ADD_VIEWER}{L_COLON}</label>
-                <input type="text" id="pcgf-privatecategories-add-viewer"/>
-                <div id="pcgf-privatecategories-suggestions" class="privatecategories-suggestions">
-                    <div id="pcgf-privatecategories-user-container">
-                        <span>{L_USERS}</span>
-                        <div id="pcgf-privatecategories-user-suggestions"></div>
-                    </div>
-                    <div id="pcgf-privatecategories-group-container">
-                        <span>{L_GROUPS}</span>
-                        <div id="pcgf-privatecategories-group-suggestions"></div>
+                <dl>
+                    <dt>{L_PCGF_PRIVATECATEGORIES_ALLOWED_USERS}{L_COLON}</dt>
+                    <dd><span id="pcgf-privatecategories-allowed-users">{PCGF_PRIVATECATEGORIES_ALLOWED_USERS}</span></dd>
+                    <br/>
+                    <dt>{L_PCGF_PRIVATECATEGORIES_ALLOWED_GROUPS}{L_COLON}</dt>
+                    <dd><span id="pcgf-privatecategories-allowed-groups">{PCGF_PRIVATECATEGORIES_ALLOWED_GROUPS}</span></dd>
+                    <br/>
+                </dl>
+            </div>
+            <!-- IF PCGF_PRIVATECATEGORIES_ADD -->
+                <div>
+                    <label for="pcgf-privatecategories-add-viewer">{L_PCGF_PRIVATECATEGORIES_ADD_VIEWER}{L_COLON}</label>
+                    <input type="text" id="pcgf-privatecategories-add-viewer"/>
+                    <div id="pcgf-privatecategories-suggestions" class="privatecategories-suggestions">
+                        <div id="pcgf-privatecategories-user-container">
+                            <span>{L_USERS}</span>
+                            <div id="pcgf-privatecategories-user-suggestions"></div>
+                        </div>
+                        <div id="pcgf-privatecategories-group-container">
+                            <span>{L_GROUPS}</span>
+                            <div id="pcgf-privatecategories-group-suggestions"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <!-- ENDIF -->
-        <!-- IF PCGF_PRIVATECATEGORIES_REMOVE -->
-            <div>
-                <input type="button" class="button2" id="pcgf-privatecategories-delete-button" value="{L_PCGF_PRIVATECATEGORIES_DELETE_VIEWER}"/>
-            </div>
-        <!-- ENDIF -->
+            <!-- ENDIF -->
+            <!-- IF PCGF_PRIVATECATEGORIES_REMOVE -->
+                <div>
+                    <input type="button" class="button2" id="pcgf-privatecategories-delete-button" value="{L_PCGF_PRIVATECATEGORIES_DELETE_VIEWER}"/>
+                </div>
+            <!-- ENDIF -->
+        </div>
     </div>
-</div>
-<script type="text/javascript">
-    var pcgfPrivateCategoriesSuggestionLink = '{PCGF_PRIVATECATEGORIES_SUGGESTION_LINK}';
-    var pcgfPrivateCategoriesAddLink = '{PCGF_PRIVATECATEGORIES_ADD_LINK}';
-    var pcgfPrivateCategoriesRemoveLink = '{PCGF_PRIVATECATEGORIES_REMOVE_LINK}';
-    var pcgfPrivateCategoriesCategory = {S_FORUM_ID};
-    var pcgfPrivateCategoriesTopic = {S_TOPIC_ID};
-    var pcgfPrivateCategoriesOwner = {PCGF_PRIVATECATEGORIES_OWNER};
-    var pcgfPrivateCategoriesAddError = '{LA_PCGF_PRIVATECATEGORIES_ADD_ERROR}';
-    var pcgfPrivateCategoriesRemoveText = '{LA_PCGF_PRIVATECATEGORIES_DELETE_VIEWER}';
-    var pcgfPrivateCategoriesRemoveMessage = '{LA_PCGF_PRIVATECATEGORIES_REMOVE_MESSAGE}';
-    var pcgfPrivateCategoriesRemoveConfirmation = '{LA_PCGF_PRIVATECATEGORIES_REMOVE_CONFIRMATION}';
-</script>
-<!-- INCLUDEJS @pcgf_privatecategories/javascript/privatecategories_edit.js -->
+    <script type="text/javascript">
+        var pcgfPrivateCategoriesSuggestionLink = '{PCGF_PRIVATECATEGORIES_SUGGESTION_LINK}';
+        var pcgfPrivateCategoriesAddLink = '{PCGF_PRIVATECATEGORIES_ADD_LINK}';
+        var pcgfPrivateCategoriesRemoveLink = '{PCGF_PRIVATECATEGORIES_REMOVE_LINK}';
+        var pcgfPrivateCategoriesCategory = {S_FORUM_ID};
+        var pcgfPrivateCategoriesTopic = {S_TOPIC_ID};
+        var pcgfPrivateCategoriesOwner = {PCGF_PRIVATECATEGORIES_OWNER};
+        var pcgfPrivateCategoriesAddError = '{LA_PCGF_PRIVATECATEGORIES_ADD_ERROR}';
+        var pcgfPrivateCategoriesRemoveText = '{LA_PCGF_PRIVATECATEGORIES_DELETE_VIEWER}';
+        var pcgfPrivateCategoriesRemoveMessage = '{LA_PCGF_PRIVATECATEGORIES_REMOVE_MESSAGE}';
+        var pcgfPrivateCategoriesRemoveConfirmation = '{LA_PCGF_PRIVATECATEGORIES_REMOVE_CONFIRMATION}';
+    </script>
+    <!-- INCLUDEJS @pcgf_privatecategories/javascript/privatecategories_edit.js -->
+<!-- ENDIF -->
