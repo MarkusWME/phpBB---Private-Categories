@@ -3,8 +3,8 @@
     "type": "phpbb-extension",
     "description": "An extension that allows to create private categories where only selected users can read topics",
     "homepage": "https://github.com/MarkusWME/phpBB---Private-Categories",
-    "version": "1.2.1",
-    "time": "2017-03-08",
+    "version": "1.2.2",
+    "time": "2017-03-14",
     "keywords": ["private", "private categories", "category", "private topics", "hidden", "hidden topics"],
     "license": "GPL-2.0",
     "authors": [

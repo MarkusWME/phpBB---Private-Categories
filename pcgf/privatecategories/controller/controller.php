@@ -16,7 +16,7 @@ use phpbb\json_response;
 use phpbb\request\request;
 use phpbb\user;
 
-/** @version 1.1.1 */
+/** @version 1.2.2 */
 class controller
 {
     /** @const Max amount of suggestions for users or groups */
@@ -113,7 +113,7 @@ class controller
                     array_push($group_ids, $group['user']);
                 }
                 $this->db->sql_freeresult($result);
-                $query = 'SELECT group_id, group_name
+                $query = 'SELECT group_id, group_name, group_type
                     FROM ' . GROUPS_TABLE . '
                     WHERE LOWER(group_name) ' . $this->db->sql_like_expression($this->db->get_any_char() . $search . $this->db->get_any_char());
                 if (count($group_ids) > 0)
@@ -123,10 +123,9 @@ class controller
                 $query .= ' ORDER BY LOWER(group_name) ' . $this->db->sql_like_expression($search . $this->db->get_any_char()) . ' DESC';
                 $result = $this->db->sql_query($query);
                 $count = 0;
-                $group_helper = $phpbb_container->get('group_helper');
                 while ($group = $this->db->sql_fetchrow($result))
                 {
-                    array_push($response_data['groups'], array($group['group_id'], $group_helper->get_name($group['group_name'])));
+                    array_push($response_data['groups'], array($group['group_id'], $this->permission_helper->get_group_name($group['group_name'], $group['group_type'])));
                     if (++$count == self::MAX_SUGGESTIONS)
                     {
                         break;
@@ -174,15 +173,14 @@ class controller
                     if ($group > 0)
                     {
                         // Get group link
-                        $query = 'SELECT group_id, group_name, group_colour
+                        $query = 'SELECT group_id, group_name, group_type, group_colour
                         FROM ' . GROUPS_TABLE . '
                         WHERE group_id = ' . $viewer;
                         $result = $this->db->sql_query($query);
                         if ($group = $this->db->sql_fetchrow($result))
                         {
                             $added_viewer['type'] = 'group';
-                            $group_helper = $phpbb_container->get('group_helper');
-                            $added_viewer['viewer'] = $this->permission_helper->get_formatted_user(array($group['group_id'], $group_helper->get_name($group['group_name']), $group['group_colour']));
+                            $added_viewer['viewer'] = $this->permission_helper->get_formatted_user(array($group['group_id'], $this->permission_helper->get_group_name($group['group_name'], $group['group_type']), $group['group_colour']));
                         }
                         $this->db->sql_freeresult($result);
                     }

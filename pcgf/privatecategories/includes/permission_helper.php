@@ -12,8 +12,9 @@ use pcgf\privatecategories\migrations\release_1_0_0;
 use phpbb\auth\auth;
 use phpbb\config\config;
 use phpbb\db\driver\factory;
+use phpbb\user;
 
-/** @version 1.2.1 */
+/** @version 1.2.2 */
 class permission_helper
 {
     /** @var auth $auth The authentication object */
@@ -24,6 +25,9 @@ class permission_helper
 
     /** @var config $config The configuration object */
     protected $config;
+
+    /** @var user $user The user object */
+    protected $user;
 
     /** @var string $phpbb_root_path The forum root path */
     protected $phpbb_root_path;
@@ -43,11 +47,12 @@ class permission_helper
      * @param string  $phpbb_root_path The forum root path
      * @param string  $php_ext         The PHP extension
      */
-    public function __construct(auth $auth, factory $db, config $config, $phpbb_root_path, $php_ext)
+    public function __construct(auth $auth, factory $db, config $config, user $user, $phpbb_root_path, $php_ext)
     {
         $this->auth = $auth;
         $this->db = $db;
         $this->config = $config;
+        $this->user = $user;
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
     }
@@ -154,6 +159,9 @@ class permission_helper
     /**
      * Checks if the stated user has the permission to view the selected topic
      *
+     * @access public
+     * @since  1.0.0
+     *
      * @param int $user_id     The user id of the user that should be checked
      * @param int $category_id The category id of the topic the user wants to see
      * @param int $topic_id    The id of the topic the user wants to see
@@ -204,6 +212,9 @@ class permission_helper
     /**
      * Function that returns a formatted user link
      *
+     * @access public
+     * @since  1.2.1
+     *
      * @param array $user_data The id, name and colour of the user
      *
      * @return string Formatted user link
@@ -221,6 +232,9 @@ class permission_helper
     /**
      * Function that returns a formatted group link
      *
+     * @access public
+     * @since  1.2.1
+     *
      * @param array $group_data The id, name and colour of the group
      *
      * @return string Formatted group link
@@ -228,5 +242,21 @@ class permission_helper
     public function get_formatted_group($group_data)
     {
         return '<a' . ($group_data[2] != '' ? ' style="color: #' . $group_data[2] . '"' : '') . ' href="' . append_sid($this->phpbb_root_path . 'memberlist.' . $this->php_ext, 'mode=group&amp;g=' . $group_data[0]) . '">' . $group_data[1] . '</a>';
+    }
+
+    /**
+     * Function that returns the localized group name if the group is a special group
+     *
+     * @access public
+     * @since  1.2.2
+     *
+     * @param string $group_name The name of the group which is in the database
+     * @param int    $group_type The group type
+     *
+     * @return string The localized group name
+     */
+    public function get_group_name($group_name, $group_type)
+    {
+        return $group_type == GROUP_SPECIAL ? $this->user->lang('G_' . $group_name) : $group_name;
     }
 }
