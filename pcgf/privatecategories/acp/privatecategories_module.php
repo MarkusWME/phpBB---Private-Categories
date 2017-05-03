@@ -11,7 +11,7 @@ namespace pcgf\privatecategories\acp;
 use pcgf\privatecategories\includes\permission_helper;
 use pcgf\privatecategories\migrations\release_1_0_0;
 
-/** @version 1.2.1 */
+/** @version 1.2.3 */
 class privatecategories_module
 {
     /** @const Defines the space count that indents subcategories */
@@ -59,7 +59,7 @@ class privatecategories_module
                     // Set the private flag of the selected category in the database
                     $query = 'UPDATE ' . FORUMS_TABLE . '
                               SET private_category = 1
-                              WHERE forum_id = ' . $db->sql_escape($request->variable('category_id', -1));
+                              WHERE forum_id = ' . $request->variable('category_id', -1);
                     $db->sql_query($query);
                     if ($db->sql_affectedrows() != 1)
                     {
@@ -117,7 +117,7 @@ class privatecategories_module
             // Remove the private flag from the selected category in the database
             $query = 'UPDATE ' . FORUMS_TABLE . '
                               SET private_category = 0
-                              WHERE forum_id = ' . $db->sql_escape($request->variable('category_id', -1));
+                              WHERE forum_id = ' . $request->variable('category_id', -1);
             $db->sql_query($query);
             if ($db->sql_affectedrows() != 1)
             {

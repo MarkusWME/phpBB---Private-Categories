@@ -16,7 +16,7 @@ use phpbb\json_response;
 use phpbb\request\request;
 use phpbb\user;
 
-/** @version 1.2.2 */
+/** @version 1.2.3 */
 class controller
 {
     /** @const Max amount of suggestions for users or groups */
@@ -37,6 +37,9 @@ class controller
     /** @var  permission_helper $permission_helper The permission helper object */
     protected $permission_helper;
 
+    /** @var string $table_prefix The phpBB table prefix */
+    protected $table_prefix;
+
     /**
      * Constructor
      *
@@ -48,14 +51,16 @@ class controller
      * @param auth              $auth              The authentication object
      * @param user              $user              The user object
      * @param permission_helper $permission_helper The permission helper object
+     * @param string            $table_prefix      The phpBB table prefix
      */
-    public function __construct(request $request, factory $db, auth $auth, user $user, permission_helper $permission_helper)
+    public function __construct(request $request, factory $db, auth $auth, user $user, permission_helper $permission_helper, $table_prefix)
     {
         $this->request = $request;
         $this->db = $db;
         $this->auth = $auth;
         $this->user = $user;
         $this->permission_helper = $permission_helper;
+        $this->table_prefix = $table_prefix;
     }
 
     /**
@@ -71,8 +76,7 @@ class controller
         // Only answer if the request is an AJAX request
         if ($this->request->is_ajax())
         {
-            global $table_prefix, $phpbb_container;
-            $search = utf8_normalize_nfc(strtolower($response_data['search']));
+            $search = strtolower($response_data['search']);
             if (strlen($search) > 0)
             {
                 // Only search if the keyword is larger than 0
@@ -103,9 +107,9 @@ class controller
                 $this->db->sql_freeresult($result);
                 // Get group suggestions that don't have permissions right now
                 $query = 'SELECT user
-                    FROM ' . $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . '
+                    FROM ' . $this->table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . '
                     WHERE is_group = 1
-                        AND topic = ' . $this->db->sql_escape($topic);
+                        AND topic = ' . $topic;
                 $result = $this->db->sql_query($query);
                 $group_ids = array();
                 while ($group = $this->db->sql_fetchrow($result))
@@ -151,11 +155,10 @@ class controller
         // Only answer if the request is an AJAX request
         if ($this->request->is_ajax())
         {
-            global $table_prefix, $phpbb_container;
             $group = $this->request->variable('is_group', 0);
             $category = $this->request->variable('category', 0);
-            $viewer = $this->db->sql_escape($this->request->variable('viewer', 0));
-            $topic = $this->db->sql_escape($this->request->variable('topic', 0));
+            $viewer = $this->request->variable('viewer', 0);
+            $topic = $this->request->variable('topic', 0);
             $owner = $this->request->variable('owner', 0);
             // Check if the current user is allowed to add a viewer
             if ($this->auth->acl_get('f_pcgf_privatecategories_invite_all', $category) || ($this->auth->acl_get('f_pcgf_privatecategories_invite_own', $category) && $this->user->data['user_id'] == $owner))
@@ -164,9 +167,9 @@ class controller
                 $insert_data = array(
                     'topic'    => $topic,
                     'user'     => $viewer,
-                    'is_group' => $this->db->sql_escape($group),
+                    'is_group' => $group,
                 );
-                $query = 'INSERT INTO ' . $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . ' ' . $this->db->sql_build_array('INSERT', $insert_data);
+                $query = 'INSERT INTO ' . $this->table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . ' ' . $this->db->sql_build_array('INSERT', $insert_data);
                 $this->db->sql_query($query);
                 if ($this->db->sql_affectedrows() == 1)
                 {
@@ -217,18 +220,17 @@ class controller
         // Only answer if the request is an AJAX request
         if ($this->request->is_ajax())
         {
-            global $table_prefix;
-            $group = $this->db->sql_escape($this->request->variable('is_group', 0));
+            $group = $this->request->variable('is_group', 0);
             $category = $this->request->variable('category', 0);
-            $viewer = $this->db->sql_escape($this->request->variable('viewer', 0));
-            $topic = $this->db->sql_escape($this->request->variable('topic', 0));
+            $viewer = $this->request->variable('viewer', 0);
+            $topic = $this->request->variable('topic', 0);
             $owner = $this->request->variable('owner', 0);
             // Check if the current user is allowed to remove a viewer
             if ($this->auth->acl_get('f_pcgf_privatecategories_remove_all', $category) || ($this->auth->acl_get('f_pcgf_privatecategories_remove_own', $category) && $this->user->data['user_id'] == $owner))
             {
                 // Remove viewer permission
                 $query = 'DELETE
-                FROM ' . $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . '
+                FROM ' . $this->table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . '
                 WHERE topic = ' . $topic . '
                     AND user = ' . $viewer . '
                         AND is_group = ' . $group;

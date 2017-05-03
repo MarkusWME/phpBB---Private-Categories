@@ -18,7 +18,7 @@ use phpbb\template\template;
 use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/** @version 1.2.1 */
+/** @version 1.2.3 */
 class listener implements EventSubscriberInterface
 {
     /** @var factory $db Database object */
@@ -42,6 +42,9 @@ class listener implements EventSubscriberInterface
     /** @var  permission_helper $permission_helper The permission helper object */
     protected $permission_helper;
 
+    /** @var string $table_prefix The phpBB table prefix */
+    protected $table_prefix;
+
     /**
      * Constructor for the extension listener
      *
@@ -55,8 +58,9 @@ class listener implements EventSubscriberInterface
      * @param auth              $auth              The authentication object
      * @param helper            $helper            $helper The helper object
      * @param permission_helper $permission_helper The permission helper object
+     * @param string            $table_prefix      The phpBB table prefix
      */
-    public function __construct(factory $db, config $config, template $template, user $user, auth $auth, helper $helper, permission_helper $permission_helper)
+    public function __construct(factory $db, config $config, template $template, user $user, auth $auth, helper $helper, permission_helper $permission_helper, $table_prefix)
     {
         $this->db = $db;
         $this->config = $config;
@@ -65,6 +69,7 @@ class listener implements EventSubscriberInterface
         $this->auth = $auth;
         $this->helper = $helper;
         $this->permission_helper = $permission_helper;
+        $this->table_prefix = $table_prefix;
         // Load language data of the extension
         $this->user->add_lang_ext('pcgf/privatecategories', 'privatecategories');
     }
@@ -135,17 +140,24 @@ class listener implements EventSubscriberInterface
     {
         if ($this->permission_helper->has_permissions($this->user->data['user_id'], $event['forum_id'], $event['topic_id'], $event['topic_data']['topic_poster']))
         {
-            global $table_prefix;
             // Add the topic owner to the list of allowed viewers
             $allowed_users = array($event['topic_data']['topic_first_poster_name'] => array($event['topic_data']['topic_poster'], $event['topic_data']['topic_first_poster_name'], $event['topic_data']['topic_first_poster_colour']));
             $allowed_groups = array();
             // Allow all users with the see all permission to view the topic
-            $allowed_user_ids = $this->auth->acl_get_list(false, 'f_pcgf_privatecategories_see_all', $event['forum_id'])[$event['forum_id']]['f_pcgf_privatecategories_see_all'];
+            $allowed_user_ids = $this->auth->acl_get_list(false, 'f_pcgf_privatecategories_see_all', $event['forum_id']);
+            if (isset($allowed_user_ids[$event['forum_id']]['f_pcgf_privatecategories_see_all']))
+            {
+                $allowed_user_ids = $allowed_user_ids[$event['forum_id']]['f_pcgf_privatecategories_see_all'];
+            }
+            else
+            {
+                $allowed_user_ids = array();
+            }
             $allowed_group_ids = array();
             // Get all users and groups which are allowed to view the topic
             $query = 'SELECT user, is_group
-                FROM ' . $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . '
-                WHERE topic = ' . $this->db->sql_escape($event['topic_id']);
+                FROM ' . $this->table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE . '
+                WHERE topic = ' . ((int)$event['topic_id']);
             $result = $this->db->sql_query($query);
             while ($row = $this->db->sql_fetchrow($result))
             {
@@ -242,7 +254,7 @@ class listener implements EventSubscriberInterface
             if (!$this->permission_helper->has_permissions($this->user->data['user_id'], $event['rowset'][$topics[$i]]['forum_id'], $event['rowset'][$topics[$i]]['topic_id'], $event['rowset'][$topics[$i]]['topic_poster']))
             {
                 // If the user doesn't have the permissions to view the topic don't show it on the list
-                unset($topics[$i--]);
+                unset($topics[$i]);
             }
         }
         $event['topic_list'] = $topics;

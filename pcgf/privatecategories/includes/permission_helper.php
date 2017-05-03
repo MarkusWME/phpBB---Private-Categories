@@ -14,7 +14,7 @@ use phpbb\config\config;
 use phpbb\db\driver\factory;
 use phpbb\user;
 
-/** @version 1.2.2 */
+/** @version 1.2.3 */
 class permission_helper
 {
     /** @var auth $auth The authentication object */
@@ -35,6 +35,9 @@ class permission_helper
     /** @var string $php_ext The PHP extension */
     protected $php_ext;
 
+    /** @var string $table_prefix The phpBB table prefix */
+    protected $table_prefix;
+
     /**
      * Constructor
      *
@@ -44,10 +47,12 @@ class permission_helper
      * @param auth    $auth            The authentication object
      * @param factory $db              The database object
      * @param config  $config          The configuration object
+     * @param user    $user            The user object
      * @param string  $phpbb_root_path The forum root path
      * @param string  $php_ext         The PHP extension
+     * @param string  $table_prefix    The phpBB table prefix
      */
-    public function __construct(auth $auth, factory $db, config $config, user $user, $phpbb_root_path, $php_ext)
+    public function __construct(auth $auth, factory $db, config $config, user $user, $phpbb_root_path, $php_ext, $table_prefix)
     {
         $this->auth = $auth;
         $this->db = $db;
@@ -55,6 +60,7 @@ class permission_helper
         $this->user = $user;
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
+        $this->table_prefix = $table_prefix;
     }
 
     /**
@@ -183,12 +189,11 @@ class permission_helper
         {
             return true;
         }
-        global $table_prefix;
-        $user_id = $this->db->sql_escape($user_id);
+        $user_id = (int)$user_id;
         $query_array = array(
             'SELECT'    => 'p.topic',
             'FROM'      => array(
-                $table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE => 'p',
+                $this->table_prefix . release_1_0_0::PRIVATECATEGORY_PERMISSION_TABLE => 'p',
             ),
             'LEFT_JOIN' => array(
                 array(
@@ -201,7 +206,7 @@ class permission_helper
             'WHERE'     => '(ug.group_id > 0
                                 OR (p.is_group = 0
                                     AND p.user = ' . $user_id . '))
-                                        AND p.topic = ' . $this->db->sql_escape($topic_id),
+                                        AND p.topic = ' . ((int)$topic_id),
         );
         $result = $this->db->sql_query($this->db->sql_build_query('SELECT', $query_array));
         $has_permission = $this->db->sql_fetchrow($result) !== false;
