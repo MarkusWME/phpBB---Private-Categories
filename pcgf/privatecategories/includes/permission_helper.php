@@ -2,7 +2,7 @@
 
 /**
  * @author    MarkusWME <markuswme@pcgamingfreaks.at>
- * @copyright 2016 MarkusWME
+ * @copyright 2016, 2017 MarkusWME
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  */
 
@@ -263,5 +263,32 @@ class permission_helper
     public function get_group_name($group_name, $group_type)
     {
         return $group_type == GROUP_SPECIAL ? $this->user->lang('G_' . $group_name) : $group_name;
+    }
+
+    /**
+     * Function that checks if the given owner is the real one
+     *
+     * @access public
+     * @since  1.2.3
+     *
+     * @param int $owner    The owner that should be checked
+     * @param int $topic_id The id of the topic the owner should be searched for
+     *
+     * @return bool If the owner is correct
+     */
+    public function is_owner($owner, $topic_id)
+    {
+        $true_owner = false;
+        $query = 'SELECT topic_poster
+                    FROM ' . TOPICS_TABLE . '
+                    WHERE topic_id = ' . $topic_id;
+        $result = $this->db->sql_query($query);
+        $owner_result = $this->db->sql_fetchrow($result);
+        if ($owner_result)
+        {
+            $true_owner = $owner_result['topic_poster'] == $owner;
+        }
+        $this->db->sql_freeresult($result);
+        return $true_owner;
     }
 }

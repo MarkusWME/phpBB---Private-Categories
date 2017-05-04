@@ -25,8 +25,14 @@ A phpBB extension that allows to create private categories where only selected u
 To install the extension you have to do the following steps:
 
 1. Copy the /pcgf/ folder into your phpBB extension folder /ext/
-2. Navigate to the ACP to Customize -> Manage extensions
+2. Navigate to the ACP to Customize &rarr; Manage extensions
 3. Search the extension under the disabled extensions category and click it's enable link
+
+To enable the functionality of the extension you have to set which categories should be private. You can do this
+in the ACP under _Forums &rarr; Manage forums &rarr; Private categories_.
+
+After you have set the categories that should be private you have to set forum permissions for users or groups.
+By default anybody is allowed to do anything.
 
 ## Requirements
 * php 5.3.3 or newer

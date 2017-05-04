@@ -161,7 +161,7 @@ class controller
             $topic = $this->request->variable('topic', 0);
             $owner = $this->request->variable('owner', 0);
             // Check if the current user is allowed to add a viewer
-            if ($this->auth->acl_get('f_pcgf_privatecategories_invite_all', $category) || ($this->auth->acl_get('f_pcgf_privatecategories_invite_own', $category) && $this->user->data['user_id'] == $owner))
+            if ($this->auth->acl_get('f_pcgf_privatecategories_invite_all', $category) || ($this->auth->acl_get('f_pcgf_privatecategories_invite_own', $category) && $this->user->data['user_id'] == $owner && $this->permission_helper->is_owner($owner, $topic)))
             {
                 // Add viewer permissions
                 $insert_data = array(
@@ -226,7 +226,7 @@ class controller
             $topic = $this->request->variable('topic', 0);
             $owner = $this->request->variable('owner', 0);
             // Check if the current user is allowed to remove a viewer
-            if ($this->auth->acl_get('f_pcgf_privatecategories_remove_all', $category) || ($this->auth->acl_get('f_pcgf_privatecategories_remove_own', $category) && $this->user->data['user_id'] == $owner))
+            if ($this->auth->acl_get('f_pcgf_privatecategories_remove_all', $category) || ($this->auth->acl_get('f_pcgf_privatecategories_remove_own', $category) && $this->user->data['user_id'] == $owner && $this->permission_helper->is_owner($owner, $topic)))
             {
                 // Remove viewer permission
                 $query = 'DELETE

@@ -1,0 +1,17 @@
+<!-- INCLUDE overall_header.html -->
+<form id="acp-pcgf-privatecategories-confirm" method="post" action="{U_ACTION}">
+    <fieldset>
+        <h1>{L_ACP_PCGF_PRIVATECATEGORIES_CONFIRM_DELETION}</h1>
+        <input type="hidden" name="action" value="delete"/>
+        <input type="hidden" name="category_id" value="{CATEGORY_ID}"/>
+        <p>{L_ACP_PCGF_PRIVATECATEGORIES_CONFIRM_DELETION_TEXT}</p>
+        <p class="submit-buttons">
+            <input class="button1" type="submit" id="submit" name="submit" value="{L_YES}"/>
+            {S_FORM_TOKEN}
+        </p>
+    </fieldset>
+</form>
+<form id="acp-pcgf-privatecategories-back" method="post" action="{U_ACTION}">
+    <input class="button2" type="submit" id="submit-back" name="back" value="{L_BACK}"/>
+</form>
+<!-- INCLUDE overall_footer.html -->

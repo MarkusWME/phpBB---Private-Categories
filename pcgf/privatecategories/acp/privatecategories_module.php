@@ -47,13 +47,14 @@ class privatecategories_module
         $this->page_title = $user->lang('ACP_PCGF_PRIVATECATEGORIES');
         $this->tpl_name = 'acp_privatecategories_body';
         add_form_key('pcgf/privatecategories');
+        $action = $request->variable('action', '');
         if ($request->is_set_post('submit'))
         {
             if (!check_form_key('pcgf/privatecategories') || !$request->is_set_post('action'))
             {
                 trigger_error('FORM_INVALID', E_USER_WARNING);
             }
-            switch ($request->variable('action', 'void'))
+            switch ($action)
             {
                 case 'add':
                     // Set the private flag of the selected category in the database
@@ -105,6 +106,17 @@ class privatecategories_module
                     $db->sql_query($query);
                     trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_CLEANUP_EXECUTED') . adm_back_link($this->u_action));
                 break;
+                case 'delete':
+                    // Remove the private flag from the selected category in the database
+                    $query = 'UPDATE ' . FORUMS_TABLE . '
+                              SET private_category = 0
+                              WHERE forum_id = ' . $request->variable('category_id', -1);
+                    $db->sql_query($query);
+                    if ($db->sql_affectedrows() != 1)
+                    {
+                        trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED') . adm_back_link($this->u_action), E_USER_WARNING);
+                    }
+                break;
                 case 'save':
                     // Save the auto inheritance setting
                     $config->set('pcgf_privatecategories_auto_inheritance', $request->variable('privatecategories_auto_inheritance', 1));
@@ -112,17 +124,14 @@ class privatecategories_module
                 break;
             }
         }
-        else if ($request->variable('action', 'void') == 'delete')
+        else if ($action == 'delete')
         {
-            // Remove the private flag from the selected category in the database
-            $query = 'UPDATE ' . FORUMS_TABLE . '
-                              SET private_category = 0
-                              WHERE forum_id = ' . $request->variable('category_id', -1);
-            $db->sql_query($query);
-            if ($db->sql_affectedrows() != 1)
-            {
-                trigger_error($user->lang('ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED') . adm_back_link($this->u_action), E_USER_WARNING);
-            }
+            $this->tpl_name = 'acp_privatecategories_confirm';
+            $template->assign_vars(array(
+                'CATEGORY_ID' => $request->variable('category_id', -1),
+                'U_ACTION'    => $this->u_action,
+            ));
+            return;
         }
         $category_array = $this->permission_helper->get_private_categories();
         $category_count = count($category_array);

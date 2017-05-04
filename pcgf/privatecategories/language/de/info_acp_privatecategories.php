@@ -4,7 +4,7 @@
  * @author    MarkusWME <markuswme@pcgamingfreaks.at>
  * @copyright 2016 MarkusWME
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
- * @version   1.0.0
+ * @version   1.2.3
  */
 
 if (!defined('IN_PHPBB'))
@@ -34,4 +34,7 @@ $lang = array_merge($lang, array(
     'ACP_PCGF_PRIVATECATEGORIES_UNSET_PRIVATE_FAILED'     => 'Die Kategorie konnte nicht zur Standard-Kategorie geändert werden!',
     // New language data since version 1.1.0
     'ACP_PCGF_PRIVATECATEGORIES_CLEANUP_EXECUTED'         => 'Die Bereinigung der Berechtigungen wurde ausgeführt!',
+    // New language data since version 1.2.3
+    'ACP_PCGF_PRIVATECATEGORIES_CONFIRM_DELETION'         => 'Private Kategorie entfernen',
+    'ACP_PCGF_PRIVATECATEGORIES_CONFIRM_DELETION_TEXT'    => 'Wollen Sie die private Kategorie wirklich öffentlich sichtbar machen?',
 ));
