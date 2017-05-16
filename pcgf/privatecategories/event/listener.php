@@ -18,7 +18,7 @@ use phpbb\template\template;
 use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/** @version 1.2.3 */
+/** @version 1.2.4 */
 class listener implements EventSubscriberInterface
 {
     /** @var factory $db Database object */
@@ -44,6 +44,9 @@ class listener implements EventSubscriberInterface
 
     /** @var string $table_prefix The phpBB table prefix */
     protected $table_prefix;
+
+    /** @var int $search_results Search result count */
+    protected $search_results;
 
     /**
      * Constructor for the extension listener
@@ -85,11 +88,13 @@ class listener implements EventSubscriberInterface
     static public function getSubscribedEvents()
     {
         return array(
-            'core.permissions'                      => 'add_permission_data',
-            'core.viewtopic_get_post_data'          => 'check_topic_view_permissions',
-            'core.viewforum_modify_topics_data'     => 'check_category_view_permissions',
-            'core.display_forums_modify_forum_rows' => 'obfuscate_forum_data',
-            'core.search_modify_rowset'             => 'filter_search_results',
+            'core.permissions'                          => 'add_permission_data',
+            'core.viewtopic_get_post_data'              => 'check_topic_view_permissions',
+            'core.viewforum_modify_topics_data'         => 'check_category_view_permissions',
+            'core.display_forums_modify_forum_rows'     => 'obfuscate_forum_data',
+            'core.search_modify_rowset'                 => 'filter_search_results',
+            'core.search_results_modify_search_title'   => 'set_search_result_count',
+            'core.display_user_activity_modify_actives' => 'set_activity',
         );
     }
 
@@ -378,5 +383,121 @@ class listener implements EventSubscriberInterface
             }
         }
         $event['rowset'] = $rowset;
+        $this->search_results = count($rowset);
+    }
+
+    /**
+     * Function that displays the correct result count for search queries
+     *
+     * @access public
+     * @since  1.2.4
+     *
+     * @param array $event The event data
+     */
+    public function set_search_result_count($event)
+    {
+        $event['total_match_count'] = $this->search_results;
+        $this->template->assign_var('SEARCH_MATCHES', $this->user->lang('FOUND_SEARCH_MATCHES', $this->search_results));
+        $this->template->assign_var('TOTAL_MATCHES', $this->search_results);
+    }
+
+    /**
+     * Function that corrects the activity statistics so that no user can see activities he should not see
+     *
+     * @access public
+     * @since  1.2.4
+     *
+     * @param array $event The event data
+     */
+    public function set_activity($event)
+    {
+        $forum_list = array();
+        $topic_list = array();
+        $post_count = 0;
+        // Get all posts to calculate the correct post count and activity statistics
+        $query = 'SELECT topic_id, forum_id, poster_id
+                    FROM ' . POSTS_TABLE . '
+                    WHERE poster_id = ' . ((int)$event['userdata']['user_id']);
+        $result = $this->db->sql_query($query);
+        while ($post = $this->db->sql_fetchrow($result))
+        {
+            if ($this->permission_helper->has_permissions($this->user->data['user_id'], $post['forum_id'], $post['topic_id'], $post['poster_id']))
+            {
+                $post_count++;
+                if (isset($forum_list[$post['forum_id']]))
+                {
+                    $forum_list[$post['forum_id']]++;
+                }
+                else
+                {
+                    $forum_list[$post['forum_id']] = 1;
+                }
+                if (isset($topic_list[$post['topic_id']]))
+                {
+                    $topic_list[$post['topic_id']]++;
+                }
+                else
+                {
+                    $topic_list[$post['topic_id']] = 1;
+                }
+            }
+        }
+        $this->db->sql_freeresult($result);
+        // Assign the post count
+        $userdata = $event['userdata'];
+        $userdata['user_posts'] = $post_count;
+        $event['userdata'] = $userdata;
+        // Set correct most active forum
+        $max_count = 0;
+        $max_count_id = 0;
+        foreach ($forum_list as $forum => $count)
+        {
+            if ($count > $max_count)
+            {
+                $max_count = $count;
+                $max_count_id = $forum;
+            }
+        }
+        if ($max_count_id > 0)
+        {
+            $query = 'SELECT forum_name
+                        FROM ' . FORUMS_TABLE . '
+                        WHERE forum_id = ' . ((int)$max_count_id);
+            $result = $this->db->sql_query($query);
+            $forum = $this->db->sql_fetchrow($result);
+            $this->db->sql_freeresult($result);
+            $forum = array(
+                'forum_id'   => $max_count_id,
+                'num_posts'  => $max_count,
+                'forum_name' => $forum['forum_name'],
+            );
+            $event['active_f_row'] = $forum;
+        }
+        // Set correct most active topic
+        $max_count = 0;
+        $max_count_id = 0;
+        foreach ($topic_list as $topic => $count)
+        {
+            if ($count > $max_count)
+            {
+                $max_count = $count;
+                $max_count_id = $topic;
+            }
+        }
+        if ($max_count_id > 0)
+        {
+            $query = 'SELECT topic_title
+                        FROM ' . TOPICS_TABLE . '
+                        WHERE topic_id = ' . ((int)$max_count_id);
+            $result = $this->db->sql_query($query);
+            $topic = $this->db->sql_fetchrow($result);
+            $this->db->sql_freeresult($result);
+            $topic = array(
+                'topic_id'    => $max_count_id,
+                'num_posts'   => $max_count,
+                'topic_title' => $topic['topic_title'],
+            );
+            $event['active_t_row'] = $topic;
+        }
     }
 }
